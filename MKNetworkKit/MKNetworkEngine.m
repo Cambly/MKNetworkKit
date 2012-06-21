@@ -470,7 +470,7 @@ static NSOperationQueue *_sharedNetworkQueue;
                        [completedOperation isCachedResponse]);
      
    }
-   onError:^(NSError* error) {
+   onError:^(MKNetworkOperation *failedOperation, NSError* error) {
      
      DLog(@"%@", error);
    }];    

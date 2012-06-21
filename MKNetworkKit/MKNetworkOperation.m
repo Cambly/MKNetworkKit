@@ -1277,7 +1277,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   self.error = error;
   DLog(@"%@, [%@]", self, [self.error localizedDescription]);
   for(MKNKErrorBlock errorBlock in self.errorBlocks)
-    errorBlock(error);  
+    errorBlock(self, error);  
   
 #if TARGET_OS_IPHONE
   DLog(@"State: %d", [[UIApplication sharedApplication] applicationState]);
