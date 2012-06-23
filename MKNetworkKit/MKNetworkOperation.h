@@ -38,7 +38,8 @@ typedef void (^MKNKImageBlock) (UIImage* fetchedImage, NSURL* url, BOOL isInCach
 #elif TARGET_OS_MAC
 typedef void (^MKNKImageBlock) (NSImage* fetchedImage, NSURL* url, BOOL isInCache);
 #endif
-typedef void (^MKNKErrorBlock)(MKNetworkOperation* failedOperation, NSError* error);
+typedef void (^MKNKErrorBlock)(NSError* error) DEPRECATED_ATTRIBUTE;
+typedef void (^MKNKErrorBlockV2)(MKNetworkOperation* failedOperation, NSError* error);
 
 typedef void (^MKNKAuthBlock)(NSURLAuthenticationChallenge* challenge);
 
@@ -382,8 +383,24 @@ typedef enum {
  *
  *  @seealso
  *  isCachedResponse
+ *
+ *  @deprecated
+ *  This is method deprecated. Use `onSuccess:onError:` instead.
  */
--(void) onCompletion:(MKNKResponseBlock) response onError:(MKNKErrorBlock) error;
+-(void) onCompletion:(MKNKResponseBlock) response onError:(MKNKErrorBlock) error DEPRECATED_ATTRIBUTE;
+
+/*!
+ *  @abstract Block Handler for completion and error
+ *  
+ *  @discussion
+ *	This method sets your completion and error blocks. If your operation's response data was previously called,
+ *  the completion block will be called almost immediately with the cached response. You can check if the completion 
+ *  handler was invoked with a cached data or with real data by calling the isCachedResponse method.
+ *
+ *  @seealso
+ *  isCachedResponse
+ */
+-(void) onSuccess:(MKNKResponseBlock) response onError:(MKNKErrorBlockV2) error;
 
 /*!
  *  @abstract Block Handler for tracking upload progress

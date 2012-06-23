@@ -463,7 +463,7 @@ static NSOperationQueue *_sharedNetworkQueue;
   MKNetworkOperation *op = [self operationWithURLString:[url absoluteString]];
   
   [op 
-   onCompletion:^(MKNetworkOperation *completedOperation)
+   onSuccess:^(MKNetworkOperation *completedOperation)
    {
      imageFetchedBlock([completedOperation responseImage], 
                        url,

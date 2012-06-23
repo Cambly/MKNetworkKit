@@ -48,6 +48,7 @@
 
 @property (nonatomic, strong) NSMutableArray *responseBlocks;
 @property (nonatomic, strong) NSMutableArray *errorBlocks;
+@property (nonatomic, strong) NSMutableArray *errorBlocksV2;
 
 @property (nonatomic, assign) MKNetworkOperationState state;
 @property (nonatomic, assign) BOOL isCancelled;
@@ -107,6 +108,7 @@
 
 @synthesize responseBlocks = _responseBlocks;
 @synthesize errorBlocks = _errorBlocks;
+@synthesize errorBlocksV2 = _errorBlocksV2;
 
 @synthesize isCancelled = _isCancelled;
 @synthesize mutableData = _mutableData;
@@ -438,6 +440,7 @@
   [theCopy setClientCertificate:[self.clientCertificate copy]];
   [theCopy setResponseBlocks:[self.responseBlocks copy]];
   [theCopy setErrorBlocks:[self.errorBlocks copy]];
+  [theCopy setErrorBlocksV2:[self.errorBlocksV2 copy]];
   [theCopy setState:self.state];
   [theCopy setIsCancelled:self.isCancelled];
   [theCopy setMutableData:[self.mutableData copy]];
@@ -463,6 +466,7 @@
   
   [self.responseBlocks addObjectsFromArray:operation.responseBlocks];
   [self.errorBlocks addObjectsFromArray:operation.errorBlocks];
+  [self.errorBlocksV2 addObjectsFromArray:operation.errorBlocksV2];
   [self.uploadProgressChangedHandlers addObjectsFromArray:operation.uploadProgressChangedHandlers];
   [self.downloadProgressChangedHandlers addObjectsFromArray:operation.downloadProgressChangedHandlers];
   [self.downloadStreams addObjectsFromArray:operation.downloadStreams];
@@ -507,6 +511,12 @@
   [self.errorBlocks addObject:[error copy]];
 }
 
+-(void) onSuccess:(MKNKResponseBlock) response onError:(MKNKErrorBlockV2) error {
+
+  [self.responseBlocks addObject:[response copy]];
+  [self.errorBlocksV2 addObject:[error copy]];
+}
+
 -(void) onUploadProgressChanged:(MKNKProgressBlock) uploadProgressBlock {
   
   [self.uploadProgressChangedHandlers addObject:[uploadProgressBlock copy]];
@@ -538,6 +548,7 @@
     
     self.responseBlocks = [NSMutableArray array];
     self.errorBlocks = [NSMutableArray array];        
+    self.errorBlocksV2 = [NSMutableArray array];        
     
     self.filesToBePosted = [NSMutableArray array];
     self.dataToBePosted = [NSMutableArray array];
@@ -880,6 +891,9 @@
     [self.errorBlocks removeAllObjects];
     self.errorBlocks = nil;
     
+    [self.errorBlocksV2 removeAllObjects];
+    self.errorBlocksV2 = nil;
+
     [self.uploadProgressChangedHandlers removeAllObjects];
     self.uploadProgressChangedHandlers = nil;
     
@@ -1276,8 +1290,10 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
   
   self.error = error;
   DLog(@"%@, [%@]", self, [self.error localizedDescription]);
-  for(MKNKErrorBlock errorBlock in self.errorBlocks)
-    errorBlock(self, error);  
+  for(void (^errorBlock)(NSError* error) in self.errorBlocks)
+    errorBlock(error);
+  for(MKNKErrorBlockV2 errorBlock in self.errorBlocksV2)
+    errorBlock(self, error);
   
 #if TARGET_OS_IPHONE
   DLog(@"State: %d", [[UIApplication sharedApplication] applicationState]);
